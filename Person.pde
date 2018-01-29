@@ -3,7 +3,7 @@ class Person {
   PVector V, Vi;
   float rad;
   int fillColor;
-  boolean infected, dead;
+  boolean infected, dead, imune, imuneShown;
   float time1, time2;
   Person() {
     X = new PVector(0, 0);
@@ -13,6 +13,7 @@ class Person {
     fillColor = color(0);
     dead = false;
     infected = false;
+    imuneShown = false;
   }
   void draw() {
     if (infected && !dead) {//draw different colors for different states 
@@ -21,7 +22,9 @@ class Person {
     } else if (dead) {
       V = new PVector(0, 0);
       fill(255, 90);
-    } else {
+    } else if (imuneShown){
+      fill(0,0,255);
+    }else {
       fill(9, 99, 9);
       V = Vi;
     }
@@ -70,6 +73,8 @@ class Person {
     infectedCount ++;//increase the infected count by one
   }
   void reset(){
+    this.imuneShown = false;
+    this.imune = false;
     this.infected = false;
     this.dead = false;
     this.V = new PVector(random(-3, 3), random(-3, 3));

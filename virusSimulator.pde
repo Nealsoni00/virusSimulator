@@ -32,7 +32,7 @@ void setup() {
   iStrength = new Slider(10, 50, 100, 19, 1, 20, 30);
   iStrength.label = "Transmission Rate";
   //people = new ArrayList<Person>();
-  numPersons = 9000;
+  numPersons = 5000;
   People = new Person[numPersons];
   for ( int i = 0; i<numPersons; i++) {//create 1000 people with random position and velocities
     Person p = new Person();
@@ -41,6 +41,11 @@ void setup() {
     p.V.x = random(-3, 3);
     p.V.y = random(-3, 3);
     People[i] = p;
+    if (int(random(0,10)) == 9){
+      p.imune = true;
+    }else{
+      p.imune = false;
+    }
   }
   People[1].infected = true;//INFECT THE FIRST PERSON
   t1 = millis();
@@ -48,6 +53,7 @@ void setup() {
 }
 
 void draw() {
+  //println(t2/1000, numPersons-infectedCount-deadCount, infectedCount, deadCount);
   background(0);
   daysAlive = life.value;
   infectionStrength = iStrength.value;
@@ -58,7 +64,11 @@ void draw() {
       for (int j = 0; j < numPersons; j++) { 
         if (!People[j].infected) {
           if (collide(People[i].X, People[j].X)) {//infect new people if they collide and are not dead or infected
-            People[j].infect();
+            if (!People[j].imune){
+              People[j].infect();
+            }else{
+              People[j].imuneShown = true;
+            }
           }
         }
       }
@@ -99,16 +109,24 @@ void drawText(){
 
 boolean collide(PVector pos1, PVector pos2) {
   if (pos1.dist(pos2) < infectionStrength) {
-    return true;
-  } else {
-    return false;
+    if (random(0,10) < 9){
+      return true;
+    }
   }
+  return false;
+  
 }
 //Button methods
 public void Reset() {//the reset button initiates this method
   for ( int i = 0; i<numPersons; i++) {//uninfect everyone
     People[i].reset();
+    if (int(random(0,10)) == 9){
+      People[i].imune = true;
+    }else{
+      People[i].imune = false;
+    }
   }
+  
   People[0].infect();//infect the first person and give them new location and velocity
   t1 = millis();//reset time
   infectedCount = 1;//reset counting variables
@@ -127,9 +145,10 @@ void drawGraphs() {
   strokeWeight(2);
   beginShape();
   stroke(0, 255, 0);
-  for (int i=0; i<healthyPoints.size(); i++) {
+  for (int i=0; i<healthyPoints.size()-1; i++) {
     Points P = (Points)healthyPoints.get(i);
-    vertex(P.x, P.y);
+    Points P2 = (Points)healthyPoints.get(i);
+    line(P.x, P.y,P2.x, P2.y);
     if (P.x < width-graphLength-10)healthyPoints.remove(i);
     P.x--;
   }
@@ -138,20 +157,22 @@ void drawGraphs() {
   //GRAPH INFECTED LINE
   beginShape();
   stroke(0, 0, 255);
-  for (int i=0; i<deadPoints.size(); i++) {
-    Points P = (Points)deadPoints.get(i);
-    vertex(P.x, P.y);
-    if (P.x < width-graphLength-10)deadPoints.remove(i);
-    P.x--;
+  for (int i=0; i<deadPoints.size()-1; i++) {
+     Points P = (Points)deadPoints.get(i);
+     Points P2 = (Points)deadPoints.get(i);
+     line(P.x, P.y,P2.x, P2.y);    
+     if (P.x < width-graphLength-10)deadPoints.remove(i);
+     P.x--;
   }
   endShape();
 
   //GRAPH INFECTED LINE
   beginShape();
   stroke(255, 0, 0);
-  for (int i=0; i<infectedPoints.size(); i++) {
+  for (int i=0; i<infectedPoints.size()-1; i++) {
     Points P = (Points)infectedPoints.get(i);
-    vertex(P.x, P.y);
+    Points P2 = (Points)infectedPoints.get(i);
+    line(P.x, P.y,P2.x, P2.y);   
     if (P.x < width-graphLength-10)infectedPoints.remove(i);
     P.x--;
   }
